@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="id" default="1" />
+  <arg name="robot_id" value="robot$(arg id)" />
+  <arg name="tmux"			default="false"/>
+  <arg name="gazebo_gui" default="true"/>
+
+
+  <include file="$(find gazebo_worlds_spds)/launch/basement_map_server.launch" />
+
+  <rosparam command="load"
+    file="$(find spds_launch)/config/global.cfg" />
+  <rosparam command="load"
+    file="$(find spds_launch)/config/citi1_simulation.cfg" />
+
+  <include file="$(find cititruck_gazebo)/launch/cititruck_pallet_basement.launch" >
+    <arg name="robot_id" value="$(arg robot_id)"/>
+    <arg name="tmux" value="$(arg tmux)"/>
+    <arg name="gazebo_gui" value="$(arg gazebo_gui)"/>
+  </include>
+  
+
+  
+
+  <node name="rviz" pkg="rviz" type="rviz"
+    args="-d $(find cititruck_description)/launch/cititruck.rviz" />
+
+</launch>

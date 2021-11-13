@@ -1,0 +1,10 @@
+# Computes a smoothed path with a given map and a given original path
+spds_msgs/RobotTarget target
+spds_msgs/Path path 
+nav_msgs/OccupancyGrid map
+spds_msgs/RobotConstraints constraints
+int32 segmentaion_id
+---
+spds_msgs/Path path 
+spds_msgs/RobotConstraints constraints
+int32 segmentaion_id

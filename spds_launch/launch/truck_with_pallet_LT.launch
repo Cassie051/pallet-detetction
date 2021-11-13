@@ -1,0 +1,132 @@
+<launch>
+    <arg name="robot_id" default="robot_X"/>
+    <arg name="log_level" default="info"/>
+    <arg name="tmux" default="false"/>
+    <!--  -->
+    <arg name="ekf" default="true"/>
+    <arg name="rviz" default="false"/>
+    <arg name="amcl_params"       default="$(find malamute_navigation)/params/amcl_params.yaml"/>
+    <arg name="rviz_config" default="navigation.rviz"/>
+    <arg name="map_name"  default="warehouse_2.yaml"/>
+    <arg name="odom_model_type"     default="diff"/>
+    
+    <arg name="urdf" default="$(find lc_17_0)/description/model.xacro"/>
+    <arg name="fake_gpio" default="false"/>
+    <arg name="fake_devices" default="false"/>
+    <arg name="gazebo_gui" default="false" doc=""/>
+    <arg name="gazebo_ns" default="/multiple/gazebo"/>
+    <arg name="pose_x" default="0"/>
+    <arg name="pose_y" default="0"/>
+    <arg name="pose_z" default="0"/>
+    <arg name="world_name" default="warehouse_2.world"/>
+    
+    <arg name="launch-prefix"   if="$(eval bool(tmux))"     default="$(find malamute_bringup)/scripts/tmux_new_pane.sh -w nav" />
+    <arg name="launch-prefix"   unless="$(eval bool(tmux))" default=""/>
+
+    <arg name="launch-suffix"   if="$(eval bool(tmux))"     default=" -p map"/>
+    <arg name="launch-suffix"   unless="$(eval bool(tmux))" default=""/>
+
+    <!-- Params -->
+    <rosparam param="$(arg robot_id)/odom_topic" if="$(eval ekf == false)">odom</rosparam>
+    <rosparam param="$(arg robot_id)/odom_topic" if="$(eval ekf == true)">odom_filtered</rosparam>  
+    <rosparam command="load" file="$(find lc_17_0)/config/robots/$(arg robot_id)/$(arg robot_id)_sim.yaml"/>
+    <rosparam command="load"
+        file="$(find lc_17_0)/config/control/ackermann.yaml"
+        ns="$(arg robot_id)"/>
+    <rosparam command="load"
+        file="$(find lc_17_0)/config/control/fork_controller.yaml"
+        ns="$(arg robot_id)"/>
+    <rosparam param="$(arg robot_id)/odom_topic"
+        if="$(eval ekf == false)">odom</rosparam>
+    <rosparam param="$(arg robot_id)/odom_topic"
+        if="$(eval ekf == true)">odom_filtered</rosparam>
+    <rosparam param="$(arg robot_id)/ackermann/pub_odom_tf"
+        if="$(eval ekf == false)">true</rosparam>
+    <rosparam param="$(arg robot_id)/ackermann/pub_odom_tf"
+        if="$(eval ekf == true)">false</rosparam>
+    <rosparam param="$(arg robot_id)/ackermann/ideal_odom"
+        if="$(eval ekf == true)">false</rosparam>
+
+    <!-- Gazebo -->
+    <group ns="multiple">
+        <include
+            file="$(find lc_worlds)/launch/world.launch">
+            <arg name="world_name" value="$(arg world_name)"/>
+            <arg name="gazebo_gui" value="$(arg gazebo_gui)"/>
+            <arg name="log_level" value="$(arg log_level)"/>
+            <arg name="verbose" value="false"/>
+            <arg name="tmux" value="$(arg tmux)"/>
+        </include>
+    </group>
+
+    <!-- Map -->
+    <node name="map_server"
+          pkg="map_server"
+          type="map_server"
+          launch-prefix="$(arg launch-prefix)$(arg launch-suffix)"
+          ns="$(arg robot_id)"
+          args="$(find malamute_bringup)/maps/$(arg map_name)">
+        <remap from="/$(arg robot_id)/map" to="/map"/>
+        <remap from="/$(arg robot_id)/map_metadata" to="/map_metadata"/>
+    </node>
+
+    <!-- ### Devices ### -->
+    <!-- Full model (motors, lasers) -->
+    <include file="$(find malamute_description)/launch/robot_spawn.launch">
+        <arg name="robot_id" value="$(arg robot_id)" />
+        <arg name="urdf" value="$(arg urdf)" />
+        <arg name="pose_x" value="$(arg pose_x)" />
+        <arg name="pose_y" value="$(arg pose_y)" />
+        <arg name="pose_z" value="$(arg pose_z)" />
+        <arg name="gazebo_ns" value="$(arg gazebo_ns)" />
+        <arg name="fake_gpio" value="$(arg fake_gpio)" />
+        <arg name="ekf" value="$(arg ekf)" />
+        <arg name="tmux" value="$(arg tmux)" />
+        <arg name="log_level" value="$(arg log_level)" />
+    </include>
+
+    <!-- New fake devices -->
+    <!-- <group if="$(eval fake_devices == true)">
+        <include file="$(find malamute_fake_devices)/launch/fake_devices.launch">
+            <arg name="robot_id" value="$(arg robot_id)"/>
+            <arg name="log_level" value="$(arg log_level)"/>
+            <arg name="tmux" value="$(arg tmux)"/>
+        </include>
+    </group> -->
+
+    <!-- UNCOMMENT TO TURN ON FRONT 3D CAMERA IN SIMULATION -->
+    <!-- Filtracja dla symulowanej kamery 3d (dla jednolitosci z RL) -->
+    <include file="$(find malamute_realsense)/launch/filter_chain.launch">
+        <arg name="robot_id" value="$(arg robot_id)"/>
+        <arg name="camera_name" value="camera_3d_front"/>
+        <arg name="input_relative_topic" value="depth/points"/>
+        <arg name="output_relative_topic" value="depth/color/points_filtered"/>
+        <arg name="use_statistical_filter" value="true"/>
+        <arg name="tmux"	         value="$(arg tmux)"/>
+    </include>
+
+    <include file="$(find malamute_navigation)/launch/amcl_localization.launch" >
+        <arg name="robot_id" value="$(arg robot_id)" />
+        <arg name="initial_pose_x" value="$(arg pose_x)"/>
+        <arg name="initial_pose_y" value="$(arg pose_y)"/>
+        <arg name="odom_model_type"  value="$(arg odom_model_type)"/>
+        <arg name="params"           value="$(arg amcl_params)"/>
+        <arg name="tmux"	         value="$(arg tmux)"/>
+    </include>     
+
+
+    <group if="$(eval ekf == true)">
+            <include file="$(find malamute_navigation)/launch/ekf_localization.launch">
+                <arg name="robot_id"        value="$(arg robot_id)" />
+                <arg name="filtered_odom_out_topic" value="odom_filtered"/>
+                <arg name="tmux"	         value="$(arg tmux)"/>
+            </include>
+        </group>    
+
+    <node name="load_map_params"
+        pkg="malamute_common"
+        type="load_map_params.py"
+        ns="$(arg robot_id)"
+        args="$(arg log_level) $(find malamute_bringup)/maps/$(arg map_name)" 
+        launch-prefix="$(arg launch-prefix)$(arg launch-suffix)" output="screen"/>
+</launch>	

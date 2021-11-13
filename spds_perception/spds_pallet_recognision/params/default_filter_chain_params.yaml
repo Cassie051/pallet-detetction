@@ -1,0 +1,10 @@
+filtered_box:
+# Defined in /camera_3d_depth_optical_frame XYZ
+# MIN
+    min_x: -1000
+    min_y: -1000
+    min_z: 1.1
+# MAX
+    max_x: 1000
+    max_y: 1000
+    max_z: 1000

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="robot_id" default="robotX" />
+    <arg name="camera_name" default="asus_fork"/>
+    <arg name="input_relative_topic"      default="depth_registered/points" />
+	<arg name="pallet_box_output_topic"   default="depth_registered/points_filtered_box" />
+    <!-- TMUX -->
+	<arg name="tmux"			default="false"/>
+	<arg name="launch-prefix"   if="$(eval bool(tmux))"     default="$(find malamute_bringup)/scripts/tmux_new_pane.sh -w pcl" />
+	<arg name="launch-prefix"   unless="$(eval bool(tmux))" default=""/>
+    <arg name="manager"                   default="realsense2_camera_manager"/>
+	<arg name="external_manager"    	  default="false"/>
+	<rosparam command="load" file="$(find spds_pallet_recognision)/params/default_filter_chain_params.yaml"  ns="sensors/$(arg camera_name)"/>
+
+	<!-- Filters -->
+	<arg name="launch-suffix"   if="$(eval bool(tmux))"     default=" -p filter_chain_nodelet"/>
+	<arg name="launch-suffix"   unless="$(eval bool(tmux))" default=""/>
+	<node unless="$(arg external_manager)" pkg="nodelet" type="nodelet" name="$(arg manager)"  ns="sensors/$(arg camera_name)"
+	    launch-prefix="$(arg launch-prefix)$(arg launch-suffix)"  args="manager" output="screen" />
+	<node pkg="nodelet" type="nodelet" name="filtered_box"  ns="sensors/$(arg camera_name)"
+		launch-prefix="$(arg launch-prefix)$(arg launch-suffix)"  args="load pcl/CropBox $(arg manager)" output="screen">
+		<remap from="~input" to="$(arg input_relative_topic)" />
+		<remap from="~output" to="$(arg pallet_box_output_topic)" />
+	</node>
+</launch>

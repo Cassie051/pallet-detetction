@@ -1,0 +1,6 @@
+#for a given trajectory return the footprint (this is returned in the constraints.constraints_outer struct (inner constraints).
+spds_msgs/RobotTarget target
+spds_msgs/Path path
+---
+spds_msgs/RobotConstraints constraints
+# more stuff?

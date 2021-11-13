@@ -1,0 +1,2 @@
+geometry_msgs/PoseStamped pose
+spds_msgs/ObjectType object

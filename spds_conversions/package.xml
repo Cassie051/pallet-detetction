@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package>
+  <name>spds_conversions</name>
+  <version>0.4.0</version>
+  <description>The spds_conversions package</description>
+
+  <maintainer email="henrik.andreasson@oru.se">Henrik Andreasson</maintainer>
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>spds_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  <run_depend>spds_msgs</run_depend>
+  <run_depend>tf</run_depend>
+
+
+  <export>
+    <cpp cflags="-I${prefix}/include" /> 
+
+  </export>
+</package>

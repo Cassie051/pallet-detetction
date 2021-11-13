@@ -1,0 +1,7 @@
+#for a given trajectory return the constraints
+spds_msgs/RobotTarget target
+spds_msgs/Path path
+nav_msgs/OccupancyGrid map
+---
+spds_msgs/RobotConstraints constraints
+# more stuff?

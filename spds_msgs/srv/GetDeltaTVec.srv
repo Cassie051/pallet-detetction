@@ -1,0 +1,7 @@
+# Computes a set of trajectory profiles deltaT's based on a given path.
+spds_msgs/RobotTarget target
+spds_msgs/Path path 
+nav_msgs/OccupancyGrid map
+---
+spds_msgs/DeltaTVec dts
+bool valid

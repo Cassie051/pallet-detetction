@@ -1,0 +1,10 @@
+#for a given target and map return the found path
+spds_msgs/RobotTarget target
+nav_msgs/OccupancyGrid map
+spds_msgs/VectorMap vector_map
+spds_msgs/GeoFence geofence
+float32 max_planning_time
+spds_msgs/PathParameters params
+---
+spds_msgs/Path path
+bool valid
