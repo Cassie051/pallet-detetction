@@ -31,14 +31,14 @@
 	<!-- Run a passthrough filter to clean NaNs -->
   <node pkg="nodelet" type="nodelet" name="passthrough" ns="sensors/$(arg camera_name)"
 		launch-prefix="$(arg launch-prefix)$(arg launch-suffix)" args="load pcl/PassThrough $(arg manager)" output="screen">
-    <remap from="~input" to="$(arg voxel_grid_topic)" />
+    <remap from="~input" to="$(arg pallet_box_output_topic)" />
 	<remap from="~output" to="$(arg passthrough_topic)" />
   </node>
 
 	<!-- Run CropBox filter -->
 	<node pkg="nodelet" type="nodelet" name="filtered_box"  ns="sensors/$(arg camera_name)"
 		launch-prefix="$(arg launch-prefix)$(arg launch-suffix)"  args="load pcl/CropBox $(arg manager)" output="screen">
-		<remap from="~input" to="$(arg voxel_grid_topic)" />
+		<remap from="~input" to="$(arg input_relative_topic)" />
 		<remap from="~output" to="$(arg pallet_box_output_topic)" />
 	</node>
 
@@ -47,6 +47,8 @@
  	<arg name="launch-suffix-1"   unless="$(eval bool(tmux))" default=""/>
   <node pkg="spds_pallet_recognision" type="pallet_recognision" name="pallet_recognision" ns="sensors/$(arg camera_name)"
 		launch-prefix="$(arg launch-prefix)$(arg launch-suffix-1)" output="screen">
+		<remap from="input" to="$(arg passthrough_topic)" />
+		<remap from="output" to="pallet_output" />
   </node>
 
 </launch>

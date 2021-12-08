@@ -21,84 +21,32 @@
 
 ros::Publisher pub;
 
-void 
-cloud_cb (const sensor_msgs::PointCloud2ConstPtr& input)
-{
-  sensor_msgs::PointCloud2 output;
-  pcl::PointCloud<pcl::PointXYZ>::Ptr pt_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_pc (new pcl::PointCloud<pcl::PointXYZ>);
-  // output = *input;
-  pcl::PCLPointCloud2 pcl_pc2;
-  pcl_conversions::toPCL(*input,pcl_pc2);
-
-  pcl::fromPCLPointCloud2(pcl_pc2, *pcl_pc);
-
-  pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
-  ne.setInputCloud (pcl_pc);
-
-  pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ> ());
-  ne.setSearchMethod (tree);
-
-  pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
-  pcl::PointCloud<pcl::PointXYZRGBNormal>cloud_with_normals;
-
-  ne.setRadiusSearch (0.03);
-  ne.compute (*cloud_normals);
-
-//   for (int i = 0; i < 50; i++)
-// {
-//     cloud_with_normals.points[i].x = pcl_pc->points[i].x;
-//     cloud_with_normals.points[i].y = pcl_pc->points[i].y;
-//     cloud_with_normals.points[i].z = pcl_pc->points[i].z;
-
-//     cloud_with_normals.points[i].r = 0;
-//     cloud_with_normals.points[i].g = 100;
-//     cloud_with_normals.points[i].b = 0;
-
-//   //  cloud_normals -> Which you have already have; generated using pcl example code 
-
-
-//     cloud_with_normals.points[i].curvature = cloud_normals->points[i].curvature;
-
-//     cloud_with_normals.points[i].normal_x = cloud_normals->points[i].normal_x;
-//     cloud_with_normals.points[i].normal_y = cloud_normals->points[i].normal_y;
-//     cloud_with_normals.points[i].normal_z = cloud_normals->points[i].normal_z;
-
-//     std::cerr << "Point value: " << cloud_with_normals.points[i].x << ", " << cloud_with_normals.points[i].y << ", " << cloud_with_normals.points[i].z;
-//     std::cerr << "Normal vector X, Y, Z: " << cloud_with_normals.points[i].normal_x << ", " << cloud_with_normals.points[i].normal_y << ", " << cloud_with_normals.points[i].normal_z;
-// }
-
-
- 
-  pcl::visualization::PCLVisualizer viewer("PCL Viewer");
-    viewer.setBackgroundColor (0.0, 0.0, 0.5);
-    viewer.addPointCloudNormals<pcl::PointXYZ,pcl::Normal>(pcl_pc, cloud_normals);
-    viewer.addCoordinateSystem (1.0, "axis", 0);
-    
-    while (!viewer.wasStopped ())
-    {
-      viewer.spinOnce ();
-    }
-
-  // pcl::fromPCLPointCloud2(pcl_pc,*pt_cloud);
-  // pub.publish (cloud_normals);
-}
-
 void
 segment_pallet (const sensor_msgs::PointCloud2ConstPtr& input)
 {
-  pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_pc (new pcl::PointCloud<pcl::PointXYZ>);
-  // output = *input;
   pcl::PCLPointCloud2 pcl_pc2;
   pcl_conversions::toPCL(*input,pcl_pc2);
+  
+  pcl::PointCloud<pcl::PointXYZ>::Ptr pc1 (new pcl::PointCloud<pcl::PointXYZ>),
+                                      pc2 (new pcl::PointCloud<pcl::PointXYZ>),
+                                      cloud_segment (new pcl::PointCloud<pcl::PointXYZ>),
+                                      cloud_segment_up (new pcl::PointCloud<pcl::PointXYZ>),
+                                      cloud_segment_front (new pcl::PointCloud<pcl::PointXYZ>);
 
-  pcl::fromPCLPointCloud2(pcl_pc2, *pcl_pc);
+  pcl::fromPCLPointCloud2(pcl_pc2, *pc1);
+  pcl::fromPCLPointCloud2(pcl_pc2, *pc2);
 
-  pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
-  pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p (new pcl::PointCloud<pcl::PointXYZ>), cloud_f (new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::ModelCoefficients::Ptr coefficientsZ (new pcl::ModelCoefficients), coefficients (new pcl::ModelCoefficients);
+  pcl::PointIndices::Ptr inliersZ (new pcl::PointIndices), inliers (new pcl::PointIndices);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_p (new pcl::PointCloud<pcl::PointXYZ>), cloud_f (new pcl::PointCloud<pcl::PointXYZ>),
+                                      cloudZ_p (new pcl::PointCloud<pcl::PointXYZ>), cloudZ_f (new pcl::PointCloud<pcl::PointXYZ>),
+                                      cloud_front_filtred (new pcl::PointCloud<pcl::PointXYZ>);
+
+  pcl::visualization::PCLVisualizer viewer("PCL Viewer");
+  viewer.setBackgroundColor (0.0, 0.0, 0.5);
 
   pcl::SACSegmentation<pcl::PointXYZ> seg;
+  pcl::SACSegmentation<pcl::PointXYZ> segZ;
 
   seg.setOptimizeCoefficients (true);
 
@@ -106,63 +54,123 @@ segment_pallet (const sensor_msgs::PointCloud2ConstPtr& input)
   seg.setMethodType (pcl::SAC_RANSAC);
   seg.setMaxIterations (1000);
   seg.setDistanceThreshold (0.01);
-  // Eigen::Vector3f axis = Eigen::Vector3f(0.0,1.0,0.0); //y axis
-  // seg.setAxis(axis);
-  // seg.setEpsAngle(  15.0f * (PI/180.0f) ); // plane can be within 30 degrees of X-Z plane
-
-  seg.setInputCloud (pcl_pc);
-  seg.segment (*inliers, *coefficients);
-
-  std::cerr << "Model coefficients: " << coefficients->values[0] << " " 
-                                      << coefficients->values[1] << " "
-                                      << coefficients->values[2] << " " 
-                                      << coefficients->values[3] << std::endl;
-
-  std::cerr << "Model inliers: " << inliers->indices.size () << std::endl;
-  for (const auto& idx: inliers->indices)
-    std::cerr << idx << "    " << pcl_pc->points[idx].x << " "
-                               << pcl_pc->points[idx].y << " "
-                               << pcl_pc->points[idx].z << std::endl;
 
 
-pcl::visualization::PCLVisualizer viewer("PCL Viewer");
-viewer.setBackgroundColor (0.0, 0.0, 0.5);
-viewer.addPointCloud<pcl::PointXYZ>(pcl_pc);
+  Eigen::Vector3f axis = Eigen::Vector3f(0.0,0.0,1.0); //z axis
+  segZ.setAxis(axis);
+  segZ.setEpsAngle(  PI - 2.5f ); // plane can be within 30 degrees of X-Y plane
+  segZ.setOptimizeCoefficients (true);
 
-pcl::ExtractIndices<pcl::PointXYZ> extract;
-int i = 0, nr_points = (int) pcl_pc->size ();
+  segZ.setModelType (pcl::SACMODEL_PERPENDICULAR_PLANE);
+  segZ.setMethodType (pcl::SAC_RANSAC);
+  segZ.setMaxIterations (1000);
+  segZ.setDistanceThreshold (0.01);
 
-while (pcl_pc->size () > 0.3 * nr_points)
-{
-  // Segment the largest planar component from the remaining cloud
-  seg.setInputCloud (pcl_pc);
-  seg.segment (*inliers, *coefficients);
-  if (inliers->indices.size () == 0)
+
+
+  int i, nr_points;
+
+  pcl::ExtractIndices<pcl::PointXYZ> extract;
+  i = 0;
+  nr_points = (int) pc1->size ();
+
+  while (pc1->size () > 0.3 * nr_points)
   {
-    std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
-    break;
+    // Segment the largest planar component from the remaining cloud
+    seg.setInputCloud (pc1);
+    seg.segment (*inliers, *coefficients);
+    if (inliers->indices.size () == 0)
+    {
+      std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+      break;
+    }
+
+    // Extract the inliers
+    extract.setInputCloud (pc1);
+    extract.setIndices (inliers);
+    extract.setNegative (false);
+    extract.filter (*cloud_p);
+    std::cerr << "PointCloud representing the planar component: " << cloud_p->width * cloud_p->height << " data points." << std::endl;
+
+    *cloud_segment_up += *cloud_p;
+
+    // Create the filtering object
+    extract.setNegative (true);
+    extract.filter (*cloud_f);
+    pc1.swap (cloud_f);
+    i++;
+  }
+  pcl::ExtractIndices<pcl::PointXYZ> extract_front;
+  extract_front.setInputCloud (pc2);
+  extract_front.setIndices (inliers);
+  extract_front.setNegative (true);
+  extract_front.filter (*cloud_front_filtred);
+
+
+  pcl::ExtractIndices<pcl::PointXYZ> extractZ;
+  i = 0;
+  nr_points = (int) cloud_front_filtred->size ();
+
+  while (cloud_front_filtred->size () > 0.3 * nr_points)
+  {
+    // Segment the largest planar component from the remaining cloud
+    segZ.setInputCloud (cloud_front_filtred);
+    segZ.segment (*inliersZ, *coefficientsZ);
+    if (inliersZ->indices.size () == 0)
+    {
+      std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+      break;
+    }
+
+    // Extract the inliers
+    extractZ.setInputCloud (cloud_front_filtred);
+    extractZ.setIndices (inliersZ);
+    extractZ.setNegative (false);
+    extractZ.filter (*cloudZ_p);
+    std::cerr << "PointCloud representing the planar component: " << cloudZ_p->width * cloudZ_p->height << " data points." << std::endl;
+
+    *cloud_segment += *cloudZ_p;
+
+    // Create the filtering object
+    extractZ.setNegative (true);
+    extractZ.filter (*cloudZ_f);
+    cloud_front_filtred.swap (cloudZ_f);
+    i++;
   }
 
-  // Extract the inliers
-  extract.setInputCloud (pcl_pc);
-  extract.setIndices (inliers);
-  extract.setNegative (false);
-  extract.filter (*cloud_p);
-  std::cerr << "PointCloud representing the planar component: " << cloud_p->width * cloud_p->height << " data points." << std::endl;
+  i = 0;
+  nr_points = (int) cloud_segment->size ();
 
-  if(i == 1)
+  while (cloud_segment->size () > 0.3 * nr_points)
   {
-    viewer.addPointCloud<pcl::PointXYZ>(cloud_p, std::to_string(i));
+    // Segment the largest planar component from the remaining cloud
+    seg.setInputCloud (cloud_segment);
+    seg.segment (*inliers, *coefficients);
+    if (inliers->indices.size () == 0)
+    {
+      std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+      break;
+    }
+
+    // Extract the inliers
+    extract.setInputCloud (cloud_segment);
+    extract.setIndices (inliers);
+    extract.setNegative (false);
+    extract.filter (*cloud_p);
+    std::cerr << "PointCloud representing the planar component: " << cloud_p->width * cloud_p->height << " data points." << std::endl;
+
+    *cloud_segment_front += *cloud_p;
+
+    // Create the filtering object
+    extract.setNegative (true);
+    extract.filter (*cloud_f);
+    cloud_segment.swap (cloud_f);
+    i++;
   }
 
-  // Create the filtering object
-  extract.setNegative (true);
-  extract.filter (*cloud_f);
-  pcl_pc.swap (cloud_f);
-  i++;
-}
+  viewer.addPointCloud<pcl::PointXYZ>(cloud_segment_front, "cloud");
 
-    
+
   while (!viewer.wasStopped ())
   {
     viewer.spinOnce ();
@@ -178,8 +186,7 @@ main (int argc, char** argv)
   ros::NodeHandle nh;
 
   // Create a ROS subscriber for the input point cloud
-  // ros::Subscriber sub = nh.subscribe ("depth_registered/passthrough", 1, cloud_cb);
-  ros::Subscriber sub = nh.subscribe ("depth_registered/passthrough", 1, segment_pallet);
+  ros::Subscriber sub = nh.subscribe ("input", 1, segment_pallet);
 
 
   // Create a ROS publisher for the output point cloud
