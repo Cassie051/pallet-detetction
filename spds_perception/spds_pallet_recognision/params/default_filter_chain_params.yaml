@@ -1,3 +1,10 @@
+voxel_grid:
+    filter_field_name: z
+    filter_limit_min: 1.1
+    filter_limit_max: 2
+    filter_limit_negative: False
+    leaf_size: 0.01
+
 filtered_box:
 # Defined in /camera_3d_depth_optical_frame XYZ
 # MIN
@@ -8,3 +15,10 @@ filtered_box:
     max_x: 1000
     max_y: 1000
     max_z: 1000
+
+passthrough:
+    filter_field_name: z
+    filter_limit_min: 0.01
+    filter_limit_max: 1.5
+    filter_limit_negative: False
+    input_frame: robot1/base_link
