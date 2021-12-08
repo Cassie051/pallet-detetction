@@ -11,7 +11,7 @@
 
    <!-- TMUX -->
 	<arg name="tmux"			default="false"/>
-	<arg name="launch-prefix"   if="$(eval bool(tmux))"     default="$(find malamute_bringup)/scripts/tmux_new_pane.sh -w objects" />
+	<arg name="launch-prefix"   if="$(eval bool(tmux))"     default="$(find spds_launch)/scripts/tmux_new_pane.sh -w objects" />
 	<arg name="launch-prefix"   unless="$(eval bool(tmux))" default=""/>
   
   <param name="description" command="$(find xacro)/xacro '$(find euro_pallet)/urdf/euro_pallet.xacro'" />

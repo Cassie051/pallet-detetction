@@ -4,7 +4,8 @@
   <arg name="id" default="1" />
   <arg name="robot_id" value="robot$(arg id)" />
   <arg name="tmux"			default="false"/>
-  <arg name="gazebo_gui" default="true"/>
+  <arg name="gazebo_gui" default="false"/>
+  <arg name="rviz_gui" default="false"/>
 
 
   <include file="$(find gazebo_worlds_spds)/launch/basement_map_server.launch" />
@@ -22,8 +23,9 @@
   
 
   
-
+<group if="$(arg rviz_gui)">
   <node name="rviz" pkg="rviz" type="rviz"
     args="-d $(find cititruck_description)/launch/cititruck.rviz" />
+</group>
 
 </launch>

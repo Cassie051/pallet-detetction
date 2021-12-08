@@ -38,8 +38,8 @@
   <group ns="pallet1">
     <param name="robot_id" value="pallet1" />
     <include file="$(find euro_pallet)/launch/euro_pallet.launch" >
-  	  <arg name="pose_x" value="6.5"/> 
-      <arg name="pose_y" value="12"/>
+  	  <arg name="pose_x" value="7"/> 
+      <arg name="pose_y" value="12.5"/>
       <arg name="pose_yaw" default="1.5"/>
 	    <arg name="name" value="pallet1" />
       <arg name="tmux" value="$(arg tmux)"/>
