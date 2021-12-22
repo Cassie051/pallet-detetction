@@ -45,10 +45,10 @@
 
 	<arg name="launch-suffix-1"   if="$(eval bool(tmux))"     default=" -p pallet_recognision"/>
  	<arg name="launch-suffix-1"   unless="$(eval bool(tmux))" default=""/>
-  <node pkg="spds_pallet_recognision" type="pallet_recognision" name="pallet_recognision" ns="sensors/$(arg camera_name)"
+  <node pkg="spds_pallet_recognision" type="pallet_recognision" name="pallet_recognision"
 		launch-prefix="$(arg launch-prefix)$(arg launch-suffix-1)" output="screen">
-		<remap from="input" to="$(arg passthrough_topic)" />
-		<remap from="output" to="pallet_output" />
+		<remap from="input" to="sensors/$(arg camera_name)/$(arg passthrough_topic)" />
+		<remap from="output" to="pallet_position" />
   </node>
 
 </launch>
