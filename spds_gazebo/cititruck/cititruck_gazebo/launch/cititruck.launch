@@ -47,6 +47,14 @@
     <arg name="tmux" value="$(arg tmux)"/>
     <arg name="camera_name" value="$(arg kinect1_name)"/>
   </include>
+
+  <arg name="launch-suffix-1"   if="$(eval bool(tmux))"     default=" -p control_cmd_vel"/>
+	<arg name="launch-suffix-1"   unless="$(eval bool(tmux))" default=""/>
+
+  <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard"
+  launch-prefix="$(arg launch-prefix)$(arg launch-suffix-1)" output="screen">
+      <remap from="cmd_vel" to="controller/cmd_vel"/>
+  </node>
   
   <!-- <node name="image_rotate"
         pkg="image_rotate"

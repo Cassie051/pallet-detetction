@@ -150,7 +150,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /visualization_marker
+      Marker Topic: /robot1/pallet_position
       Name: Marker
       Namespaces:
         {}
