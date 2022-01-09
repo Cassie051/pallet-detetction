@@ -15,6 +15,7 @@
   <arg name="velodyne" default="false" />
   <arg name="kinect2" default="false" />
   <arg name="kinect2_name" default="kinect2"/>
+  <arg name="sick_name" default="laser"/>
 
   <!-- TMUX -->
 	<arg name="tmux"			default="false"/>
@@ -23,7 +24,7 @@
 
   <param name="robot_description" command="$(find xacro)/xacro --inorder 
     '$(find cititruck_description)/urdf/$(arg xacro_name).xacro'
-     velodyne:=$(arg velodyne) kinect2:=$(arg kinect2) kinect1:=$(arg asus_camera) kinect1_name:=$(arg kinect1_name) tf_prefix:=$(arg robot_id)/sensors  controller_prefix:=controller/  sensor_prefix:=sensors/  sick_name:=laser2d_floor ls2000_name:=laser2d_top kinect2_name:=$(arg kinect2_name)"/>
+     velodyne:=$(arg velodyne) kinect2:=$(arg kinect2) kinect1:=$(arg asus_camera) kinect1_name:=$(arg kinect1_name) tf_prefix:=$(arg robot_id)/sensors  controller_prefix:=controller/  sensor_prefix:=sensors/  sick_name:=$(arg sick_name) ls2000_name:=laser2d_top kinect2_name:=$(arg kinect2_name)"/>
 
   <arg name="launch-suffix"   if="$(eval bool(tmux))"     default=" -p spawn_model"/>
 	<arg name="launch-suffix"   unless="$(eval bool(tmux))" default=""/>

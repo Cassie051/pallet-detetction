@@ -203,7 +203,7 @@
         <parent link="base_link"/>
         <child link="steer_link"/>
         <limit effort="10000.0" lower="-1.57" upper="1.57" velocity="100"/>
-        <origin xyz="1.190 0 0.04" rpy="0 0 0" />
+        <origin xyz="0.9 0 0.04" rpy="0 0 0" />
         <axis xyz="0 0 1" />
       </joint>
 <!--
@@ -310,7 +310,7 @@
 	<visual>
 	  <origin xyz="0 0 0" rpy="0 0 0"/>
 	  <geometry>
-            <mesh filename="package://cititruck_description/meshes/sick_s300_laser.dae"/>
+      <mesh filename="package://cititruck_description/meshes/sick_s300_laser.dae"/>
 	  </geometry>
 	</visual>
 	
@@ -323,7 +323,7 @@
 
       <joint name="laser_joint" type="fixed">
 	<axis xyz="0 1 0" />
-	<origin xyz="1.4 0 0.02" rpy="3.14159 0 0"/>
+	<origin xyz="1.05 0 0.02" rpy="3.14159 0 0"/>
 	<parent link="base_link"/>
 	<child link="$(arg sick_name)_link"/>
       </joint>

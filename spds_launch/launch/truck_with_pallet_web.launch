@@ -4,7 +4,7 @@
   <arg name="id" default="1" />
   <arg name="robot_id" value="robot$(arg id)" />
   <arg name="tmux"			default="false"/>
-  <arg name="gazebo_gui" default="false"/>
+  <arg name="gazebo_gui" default="true"/>
   <arg name="rviz_gui" default="true"/>
 
 

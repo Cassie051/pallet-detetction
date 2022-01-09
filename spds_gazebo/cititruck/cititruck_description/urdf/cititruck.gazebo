@@ -4,7 +4,7 @@
   <!-- Arguments used in cititruck.gazebo -->
   <xacro:arg name="controller_prefix" default=""/>
   <xacro:arg name="sensor_prefix" default=""/>
-  <xacro:arg name="sick_name" default="safety"/>
+  <xacro:arg name="sick_name" default="laser"/>
   <xacro:arg name="ls2000_name" default="nav"/>   
   <xacro:arg name="kinect2_name" default="kinect2"/>
   <xacro:arg name="kinect1_name" default="kinect"/>
@@ -65,11 +65,10 @@
   </gazebo>
 
   <!-- SICK safety laser -->
-<xacro:if value="$(arg use_gpu)">
   <gazebo reference="$(arg sick_name)_link">
-    <sensor type="gpu_ray" name="$(arg sick_name)_sensor">
+    <sensor type="ray" name="$(arg sick_name)_sensor">
       <pose>0 0 0 0 0 0</pose>
-      <visualize>false</visualize>
+      <visualize>true</visualize>
       <update_rate>40</update_rate>
       <ray>
         <scan>
@@ -99,13 +98,12 @@
           <stddev>0.01</stddev>
         </noise>
       </ray>
-      <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_gpu_laser.so">
+      <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_laser.so">
         <topicName>$(arg sensor_prefix)$(arg sick_name)</topicName>
         <frameName>$(arg sick_name)_link</frameName>
       </plugin>
     </sensor>
   </gazebo>
-</xacro:if>
 <!-- unless block should be EXACTLY as the previous but without gpu plugin -->
 <xacro:unless value="$(arg use_gpu)">
   <gazebo reference="$(arg sick_name)_link">
