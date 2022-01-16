@@ -46,17 +46,29 @@
     </include>
   </group>
 
-  <!-- pallet 2
+  <!-- pallet 2 -->
   <group ns="pallet2">
     <param name="robot_id" value="pallet2" />
     <include file="$(find euro_pallet)/launch/euro_pallet.launch">
-        <arg name="pose_x" value="3.0"/>
-  	<arg name="pose_y" value="14.0"/>
-	<arg name="pose_z" value="0.1"/>
-	<arg name="pose_yaw" default="0"/>
-	<arg name="name" value="pallet2" />
+      <arg name="pose_x" value="3.0"/>
+  	  <arg name="pose_y" value="14.0"/>
+	    <arg name="pose_z" value="2"/>
+	    <arg name="pose_yaw" default="0"/>
+	    <arg name="name" value="pallet2" />
+      <arg name="tmux" value="$(arg tmux)"/>
      </include>
-  </group> -->
+  </group>
+
+<group ns="pallet3">
+    <param name="robot_id" value="pallet3" />
+    <include file="$(find euro_pallet)/launch/euro_pallet.launch" >
+  	  <arg name="pose_x" value="5"/> 
+      <arg name="pose_y" value="12.5"/>
+      <arg name="pose_yaw" default="1.5"/>
+	    <arg name="name" value="pallet3" />
+      <arg name="tmux" value="$(arg tmux)"/>
+     </include>
+  </group>
 
 
 </launch>
