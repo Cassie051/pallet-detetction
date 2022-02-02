@@ -1,6 +1,6 @@
 # Special pallet detection system
 
-The project is made in ROS noetic with using PCL liblary. The circut element was taken from [navigation_oru](https://github.com/OrebroUniversity/navigation_oru-release) project and adapted for own demands.
+The project is made in ROS noetic with using PCL liblary. The cititruck's elements were taken from [navigation_oru](https://github.com/OrebroUniversity/navigation_oru-release) project and adapted for own demands.
 Packages allow to find pallet position, base on center of a perpendicular plane, and show its position as a rviz marker.
 
 ![robot_in_rviz](./doc/robot_and_pallet.png)
