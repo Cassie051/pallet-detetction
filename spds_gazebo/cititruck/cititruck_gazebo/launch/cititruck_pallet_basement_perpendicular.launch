@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="id" default="X" />
+  <arg name="robot_id" default="robot$(arg id)" />
+  <arg name="gazebo_gui" default="false"/>
+  <!-- TMUX -->
+	<arg name="tmux"			default="false"/>
+
+  <include file="$(find gazebo_worlds_spds)/launch/basement_world_paused.launch">
+    <arg name="gui" value="$(arg gazebo_gui)"/>
+    <arg name="debug" default="false"/>
+  </include>
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find cititruck_description)/urdf/cititruck_kinect.xacro'" />
+
+  <group ns="$(arg robot_id)">
+    <param name="tf_prefix" value="$(arg robot_id)" />
+    <include file="$(find cititruck_gazebo)/launch/cititruck.launch">
+      <arg name="robot_pose_x" value="6.85"/> 
+      <arg name="robot_pose_y" value="12.3"/>
+      <arg name="robot_pose_yaw" default="3"/>
+      <arg name="robot_id" value="$(arg robot_id)" />
+      <arg name="xacro_name" value="cititruck_kinect" />
+      <arg name="kinect2" value="true" />
+      <arg name="kinect2_name" value="kinect2"/>
+      <arg name="kinect1_name" value="asus_fork"/>
+      <arg name="tmux" value="$(arg tmux)"/>
+    </include>
+  </group>
+  <!-- This is needed, since the plugin for the kinect camera utilize both the namespace and the tf_previx... -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="robot1_kinect_link_broadcaster" args="0 0 0 0 0 0 robot1/kinect_link robot1/robot1/kinect_link 100" />
+  <node pkg="tf" type="static_transform_publisher" name="robot1_kinect_link_broadcaster" args="0 0 0 0 1.57 0 robot1/kinect_link robot1/kinect_link_tmp 100" /-->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="robot1_kinect_link_tmp_broadcaster" args="0 0 0 -1.57 0 0 robot1/kinect_link_tmp robot1/robot1/kinect_link 100" /> -->
+
+
+  <group ns="pallet1">
+    <param name="robot_id" value="pallet1" />
+    <include file="$(find euro_pallet)/launch/euro_pallet.launch" >
+  	  <arg name="pose_x" value="5.4"/> 
+      <arg name="pose_y" value="10.5"/>
+      <arg name="pose_yaw" default="0"/>
+	    <arg name="name" value="pallet1" />
+      <arg name="tmux" value="$(arg tmux)"/>
+    </include>
+  </group>
+
+  <group ns="pallet2">
+    <param name="robot_id" value="pallet2" />
+    <include file="$(find euro_pallet)/launch/euro_pallet.launch">
+      <arg name="pose_x" value="2.15"/>
+  	  <arg name="pose_y" value="12.5"/>
+	    <arg name="pose_yaw" default="1.5"/>
+	    <arg name="name" value="pallet2" />
+      <arg name="tmux" value="$(arg tmux)"/>
+     </include>
+  </group>
+
+<group ns="pallet3">
+    <param name="robot_id" value="pallet3" />
+    <include file="$(find euro_pallet)/launch/euro_pallet.launch" >
+  	  <arg name="pose_x" value="3.7"/> 
+      <arg name="pose_y" value="10.6"/>
+      <arg name="pose_yaw" default="0"/>
+	    <arg name="name" value="pallet3" />
+      <arg name="tmux" value="$(arg tmux)"/>
+     </include>
+  </group>
+
+
+</launch>

@@ -23,6 +23,7 @@ endif()
 
 install(DIRECTORY
   models
+  launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 

@@ -56,10 +56,4 @@
   launch-prefix="$(arg launch-prefix)$(arg launch-suffix-1)" output="screen">
       <remap from="cmd_vel" to="controller/cmd_vel"/>
   </node>
-  
-  <!-- <node name="image_rotate"
-        pkg="image_rotate"
-        type="image_rotate"
-        args="image:=$(arg kinect1_name)/depth/image_color rotated/image:=$(arg kinect1_name)/depth/image_color_rotated"
-        output="screen" /> -->
 </launch>
